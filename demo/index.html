@@ -260,6 +260,7 @@
             :load-options="loadOptions"
             :default-options="false"
             placeholder="输入关键词搜索..."
+            @search-change="onSearchChange"
           />
           <div class="value">选中值: {{ asyncValue }}</div>
         </div>

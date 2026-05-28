@@ -55,6 +55,11 @@ export default defineComponent({
       INPUT_DEBOUNCE_DELAY,
       { leading: true, trailing: true },
     )
+    this.onInput = this.onInput.bind(this)
+    this.onFocus = this.onFocus.bind(this)
+    this.onBlur = this.onBlur.bind(this)
+    this.onKeyDown = this.onKeyDown.bind(this)
+    this.onMouseDown = this.onMouseDown.bind(this)
   },
 
   methods: {
@@ -103,7 +108,6 @@ export default defineComponent({
 
     onInput(evt) {
       const { value } = evt.target
-
       this.value = value
 
       if (value) {
@@ -251,11 +255,11 @@ export default defineComponent({
         required: instance.required && !instance.hasValue,
         value: this.value,
         style: this.inputStyle,
-        onFocus: this.onFocus,
-        onInput: this.onInput,
-        onBlur: this.onBlur,
-        onKeydown: this.onKeyDown,
-        onMousedown: this.onMouseDown,
+        onFocus: evt => this.onFocus(evt),
+        onInput: evt => this.onInput(evt),
+        onBlur: evt => this.onBlur(evt),
+        onKeydown: evt => this.onKeyDown(evt),
+        onMousedown: evt => this.onMouseDown(evt),
       })
     },
 
@@ -272,7 +276,6 @@ export default defineComponent({
 
     updateSearchQuery() {
       const { instance } = this
-
       instance.trigger.searchQuery = this.value
     },
   },

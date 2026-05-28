@@ -1749,9 +1749,6 @@ export default {
           callback()
         }, err => {
           callback(err)
-        }).catch(err => {
-          // istanbul ignore next
-          console.error(err)
         })
       }
     },

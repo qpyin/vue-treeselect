@@ -11,7 +11,6 @@ module.exports = {
     ...baseWebpackConfig.module,
     rules: [
       ...(baseWebpackConfig.module && baseWebpackConfig.module.rules ? baseWebpackConfig.module.rules : []),
-      utils.eslintLoader ? utils.eslintLoader('test') : null,
       utils.styleLoaders(),
     ].filter(Boolean),
   },

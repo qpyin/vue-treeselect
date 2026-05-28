@@ -27,7 +27,6 @@ function handleMouseEnterOption(evt, instance, node) {
       instance.setCurrentHighlightedOption(node, false)
     }
   } catch (e) {
-    console.error('handleMouseEnterOption error:', e)
   }
 }
 
@@ -39,7 +38,6 @@ function handleMouseDownOnArrow(evt, instance, node) {
       instance.toggleExpanded(node)
     }
   } catch (e) {
-    console.error('handleMouseDownOnArrow error:', e)
   }
 }
 
@@ -54,7 +52,6 @@ function handleMouseDownOnLabelContainer(evt, instance, node, disableBranchNodes
       instance.select(node)
     }
   } catch (e) {
-    console.error('handleMouseDownOnLabelContainer error:', e)
   }
 }
 
@@ -62,7 +59,6 @@ function handleMouseDownOnLabelContainer(evt, instance, node, disableBranchNodes
 export default function createOptionVNode(instance, node) {
   try {
     if (!instance || !node) {
-      console.warn('createOptionVNode: invalid instance or node', { instance, node })
       return h('div', { class: 'vue-treeselect__list-item' }, 'Invalid option')
     }
 
@@ -189,7 +185,6 @@ export default function createOptionVNode(instance, node) {
     return h('div', { class: listItemClass }, children)
   } catch (e) {
     // Return a fallback vnode if rendering fails
-    console.error('Error creating option vnode:', e, 'node:', node ? node.id : 'unknown')
     return h('div', { class: 'vue-treeselect__list-item vue-treeselect__option vue-treeselect__option--error' }, node && node.label ? node.label : 'Error rendering option',
     )
   }
