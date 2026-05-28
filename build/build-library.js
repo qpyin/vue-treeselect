@@ -1,7 +1,8 @@
+/* eslint-disable no-console */
 const path = require('path')
 const webpack = require('webpack')
 const shell = require('shelljs')
-const ora = require('ora')
+const ora = require('ora').default
 const chalk = require('chalk')
 const runSeries = require('run-series')
 const config = require('./config')
@@ -25,6 +26,20 @@ const build = cb => {
     if (err) {
       cb(err)
     } else {
+      const info = stats.toJson()
+
+      if (stats.hasErrors()) {
+        console.error('Compilation errors:')
+        info.errors.forEach(error => console.error(error))
+        cb(new Error('Compilation failed'))
+        return
+      }
+
+      if (stats.hasWarnings()) {
+        console.log('Warnings:')
+        info.warnings.forEach(warning => console.log(warning))
+      }
+
       process.stdout.write(stats.toString({
         colors: true,
         modules: false,

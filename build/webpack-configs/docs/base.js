@@ -1,8 +1,8 @@
-const merge = require('webpack-merge')
 const config = require('../../config')
+const base = require('../base')
 
-module.exports = merge(require('../base'), {
+module.exports = { ...base,
   output: {
     path: config.docs.assetsRoot,
   },
-})
+}

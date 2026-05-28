@@ -1,4 +1,3 @@
-const merge = require('webpack-merge')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const TerserPlugin = require('terser-webpack-plugin')
 const OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin')
@@ -8,6 +7,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
 const config = require('../../config')
 const utils = require('../utils')
+const base = require('./base')
 
 const ENABLE_SOURCE_MAP = false
 
@@ -16,7 +16,8 @@ const assetsPath = path => [
   path,
 ].join('/')
 
-const webpackConfig = merge(require('./base'), {
+const webpackConfig = {
+  ...base,
   mode: 'production',
 
   entry: {
@@ -24,13 +25,16 @@ const webpackConfig = merge(require('./base'), {
   },
 
   output: {
+    ...base.output,
     publicPath: config.docs.assetsPublicPath,
     filename: assetsPath('js/[name].[chunkhash].js'),
     chunkFilename: assetsPath('js/[id].[chunkhash].js'),
   },
 
   module: {
+    ...base.module,
     rules: [
+      ...(base.module && base.module.rules ? base.module.rules : []),
       utils.styleLoaders({
         sourceMap: ENABLE_SOURCE_MAP,
         extract: true,
@@ -41,6 +45,7 @@ const webpackConfig = merge(require('./base'), {
   devtool: ENABLE_SOURCE_MAP ? 'source-map' : false,
 
   plugins: [
+    ...(base.plugins || []),
     // extract css into its own file
     new MiniCssExtractPlugin({
       filename: assetsPath('css/[name].[contenthash].css'),
@@ -91,6 +96,7 @@ const webpackConfig = merge(require('./base'), {
   ],
 
   optimization: {
+    ...base.optimization,
     minimizer: [
       new TerserPlugin({
         sourceMap: ENABLE_SOURCE_MAP,
@@ -99,7 +105,7 @@ const webpackConfig = merge(require('./base'), {
       new OptimizeCSSPlugin(),
     ],
   },
-})
+}
 
 if (config.docs.bundleAnalyzerReport) {
   webpackConfig.plugins.push(new BundleAnalyzerPlugin())

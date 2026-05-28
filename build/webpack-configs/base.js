@@ -7,11 +7,10 @@ module.exports = {
   mode: 'none',
 
   resolve: {
-    extensions: [ '.js', '.json', '.vue' ],
+    extensions: [ '.js', '.json', '.vue', '.jsx' ],
     alias: {
       // use the full development build of Vue
-      // see: https://vuejs.org/v2/guide/installation.html#Explanation-of-Different-Builds
-      'vue$': 'vue/dist/vue',
+      'vue$': 'vue/dist/vue.esm-bundler.js',
       // for consistent docs
       '@riophae/vue-treeselect': utils.resolve('src'),
       // for shorter import path in tests
@@ -31,6 +30,11 @@ module.exports = {
         },
       }),
       utils.withCacheLoader({
+        test: /\.jsx$/,
+        loader: 'babel-loader',
+        include: [ 'src', 'docs', 'test' ].map(utils.resolve),
+      }),
+      utils.withCacheLoader({
         test: /\.js$/,
         loader: 'babel-loader',
         include: [ 'src', 'docs', 'test' ].map(utils.resolve),
@@ -44,9 +48,11 @@ module.exports = {
       }),
       {
         test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
-        loader: 'url-loader',
-        options: {
-          limit: 10000,
+        type: 'asset',
+        parser: {
+          dataUrlCondition: {
+            maxSize: 10000,
+          },
         },
       },
     ],
@@ -54,17 +60,15 @@ module.exports = {
 
   optimization: {
     concatenateModules: true,
-    noEmitOnErrors: true,
-  },
-
-  node: {
-    process: false,
+    emitOnErrors: false,
   },
 
   plugins: [
     new VueLoaderPlugin(),
     new webpack.DefinePlugin({
       PKG_VERSION: JSON.stringify(require('../../package').version),
+      __VUE_OPTIONS_API__: true,
+      __VUE_PROD_DEVTOOLS__: false,
     }),
   ],
 }

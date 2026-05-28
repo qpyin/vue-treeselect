@@ -1,4 +1,3 @@
-const merge = require('webpack-merge')
 const baseWebpackConfig = require('./base')
 const dev = require('./dev')
 const prod = require('./prod')
@@ -9,8 +8,10 @@ const ENV_UNSET = false
 const ENV_DEVELOPMENT = 'development'
 const ENV_PRODUCTION = 'production'
 
-const setNodeEnv = (webpackConfig, nodeEnv) => merge(webpackConfig, {
+const setNodeEnv = (webpackConfig, nodeEnv) => ({
+  ...webpackConfig,
   optimization: {
+    ...webpackConfig.optimization,
     nodeEnv,
   },
 })

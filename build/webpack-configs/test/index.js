@@ -1,22 +1,25 @@
-const merge = require('webpack-merge')
 const utils = require('../utils')
 const baseWebpackConfig = require('../base')
 
 process.env.NODE_ENV = 'testing'
 
-module.exports = merge(baseWebpackConfig, {
+module.exports = {
+  ...baseWebpackConfig,
   mode: 'development',
 
   module: {
+    ...baseWebpackConfig.module,
     rules: [
-      utils.eslintLoader('test'),
+      ...(baseWebpackConfig.module && baseWebpackConfig.module.rules ? baseWebpackConfig.module.rules : []),
+      utils.eslintLoader ? utils.eslintLoader('test') : null,
       utils.styleLoaders(),
-    ],
+    ].filter(Boolean),
   },
 
   devtool: false,
 
   optimization: {
+    ...baseWebpackConfig.optimization,
     nodeEnv: process.env.NODE_ENV,
   },
-})
+}

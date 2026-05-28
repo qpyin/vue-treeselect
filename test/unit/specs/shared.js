@@ -1,4 +1,5 @@
 import sleep from 'yaku/lib/sleep'
+// eslint-disable-next-line import/no-unresolved
 import Option from '@src/components/Option'
 import { INPUT_DEBOUNCE_DELAY } from '@src/constants'
 

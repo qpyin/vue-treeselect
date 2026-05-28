@@ -993,7 +993,9 @@ export default {
         raw,
       }
 
-      return this.$set(this.forest.nodeMap, id, fallbackNode)
+      // Vue 3: Direct assignment instead of $set
+      this.forest.nodeMap[id] = fallbackNode
+      return fallbackNode
     },
 
     extractCheckedNodeIdsFromValue() {
@@ -1087,7 +1089,8 @@ export default {
           ...prevNodeMap[id],
           isFallbackNode: true,
         }
-        this.$set(this.forest.nodeMap, id, node)
+        // Vue 3: Direct assignment instead of $set
+        this.forest.nodeMap[id] = node
       })
     },
 
@@ -1213,12 +1216,13 @@ export default {
           node.showAllChildrenOnSearch = false
           node.isMatched = false
           node.hasMatchedDescendants = false
-          this.$set(this.localSearch.countMap, node.id, {
+          // Vue 3: Direct assignment instead of $set
+          this.localSearch.countMap[node.id] = {
             [ALL_CHILDREN]: 0,
             [ALL_DESCENDANTS]: 0,
             [LEAF_CHILDREN]: 0,
             [LEAF_DESCENDANTS]: 0,
-          })
+          }
         }
       })
 
@@ -1299,10 +1303,32 @@ export default {
 
     getRemoteSearchEntry() {
       const { searchQuery } = this.trigger
-      const entry = this.remoteSearch[searchQuery] || {
+
+      // Return existing entry if available
+      if (this.remoteSearch[searchQuery]) {
+        return this.remoteSearch[searchQuery]
+      }
+
+      const entry = {
         ...createAsyncOptionsStates(),
         options: [],
       }
+
+      if (searchQuery === '') {
+        if (Array.isArray(this.defaultOptions)) {
+          entry.options = this.defaultOptions
+          entry.isLoaded = true
+          this.remoteSearch[searchQuery] = entry
+          return entry
+        } else if (this.defaultOptions !== true) {
+          entry.isLoaded = true
+          this.remoteSearch[searchQuery] = entry
+          return entry
+        }
+      }
+
+      // Vue 3: Use $set equivalent - trigger reactivity for new keys
+      this.remoteSearch[searchQuery] = entry
 
       // Vue doesn't support directly watching on objects.
       this.$watch(
@@ -1313,21 +1339,6 @@ export default {
         },
         { deep: true },
       )
-
-      if (searchQuery === '') {
-        if (Array.isArray(this.defaultOptions)) {
-          entry.options = this.defaultOptions
-          entry.isLoaded = true
-          return entry
-        } else if (this.defaultOptions !== true) {
-          entry.isLoaded = true
-          return entry
-        }
-      }
-
-      if (!this.remoteSearch[searchQuery]) {
-        this.$set(this.remoteSearch, searchQuery, entry)
-      }
 
       return entry
     },
@@ -1356,16 +1367,25 @@ export default {
     },
 
     getControl() {
-      return this.$refs.control.$el
+      const control = this.$refs.control
+      return control ? control.$el : null
     },
 
     getMenu() {
-      const ref = this.appendToBody ? this.$refs.portal.portalTarget : this
-      const $menu = ref.$refs.menu.$refs.menu
-      return $menu && $menu.nodeName !== '#comment' ? $menu : null
+      try {
+        const ref = this.appendToBody ? (this.$refs.portal && this.$refs.portal.portalTarget) : this
+        if (!ref) return null
+        const menuRef = ref.$refs.menu
+        if (!menuRef) return null
+        const $menu = menuRef.$refs.menu
+        return $menu && $menu.nodeName !== '#comment' ? $menu : null
+      } catch (e) {
+        return null
+      }
     },
 
     setCurrentHighlightedOption(node, scroll = true) {
+      if (!node) return
       const prev = this.menu.current
       if (prev != null && prev in this.forest.nodeMap) {
         this.forest.nodeMap[prev].isHighlighted = false
@@ -1377,6 +1397,7 @@ export default {
       if (this.menu.isOpen && scroll) {
         const scrollToOption = () => {
           const $menu = this.getMenu()
+          if (!$menu) return
           const $option = $menu.querySelector(`.vue-treeselect__option[data-id="${node.id}"]`)
           if ($option) scrollIntoView($menu, $option)
         }
@@ -1536,47 +1557,49 @@ export default {
             ? lowerCased.label
             : parentNode.nestedSearchLabel + ' ' + lowerCased.label
 
-          const normalized = this.$set(this.forest.nodeMap, id, createMap())
-          this.$set(normalized, 'id', id)
-          this.$set(normalized, 'label', label)
-          this.$set(normalized, 'level', level)
-          this.$set(normalized, 'ancestors', isRootNode ? [] : [ parentNode ].concat(parentNode.ancestors))
-          this.$set(normalized, 'index', (isRootNode ? [] : parentNode.index).concat(index))
-          this.$set(normalized, 'parentNode', parentNode)
-          this.$set(normalized, 'lowerCased', lowerCased)
-          this.$set(normalized, 'nestedSearchLabel', nestedSearchLabel)
-          this.$set(normalized, 'isDisabled', isDisabled)
-          this.$set(normalized, 'isNew', isNew)
-          this.$set(normalized, 'isMatched', false)
-          this.$set(normalized, 'isHighlighted', false)
-          this.$set(normalized, 'isBranch', isBranch)
-          this.$set(normalized, 'isLeaf', isLeaf)
-          this.$set(normalized, 'isRootNode', isRootNode)
-          this.$set(normalized, 'raw', raw)
+          // Vue 3: Direct assignment instead of $set
+          const normalized = {}
+          this.forest.nodeMap[id] = normalized
+          normalized.id = id
+          normalized.label = label
+          normalized.level = level
+          normalized.ancestors = isRootNode ? [] : [ parentNode ].concat(parentNode.ancestors)
+          normalized.index = (isRootNode ? [] : parentNode.index).concat(index)
+          normalized.parentNode = parentNode
+          normalized.lowerCased = lowerCased
+          normalized.nestedSearchLabel = nestedSearchLabel
+          normalized.isDisabled = isDisabled
+          normalized.isNew = isNew
+          normalized.isMatched = false
+          normalized.isHighlighted = false
+          normalized.isBranch = isBranch
+          normalized.isLeaf = isLeaf
+          normalized.isRootNode = isRootNode
+          normalized.raw = raw
 
           if (isBranch) {
             const isLoaded = Array.isArray(children)
 
-            this.$set(normalized, 'childrenStates', {
+            normalized.childrenStates = {
               ...createAsyncOptionsStates(),
               isLoaded,
-            })
-            this.$set(normalized, 'isExpanded', typeof isDefaultExpanded === 'boolean'
+            }
+            normalized.isExpanded = typeof isDefaultExpanded === 'boolean'
               ? isDefaultExpanded
-              : level < this.defaultExpandLevel)
-            this.$set(normalized, 'hasMatchedDescendants', false)
-            this.$set(normalized, 'hasDisabledDescendants', false)
-            this.$set(normalized, 'isExpandedOnSearch', false)
-            this.$set(normalized, 'showAllChildrenOnSearch', false)
-            this.$set(normalized, 'count', {
+              : level < this.defaultExpandLevel
+            normalized.hasMatchedDescendants = false
+            normalized.hasDisabledDescendants = false
+            normalized.isExpandedOnSearch = false
+            normalized.showAllChildrenOnSearch = false
+            normalized.count = {
               [ALL_CHILDREN]: 0,
               [ALL_DESCENDANTS]: 0,
               [LEAF_CHILDREN]: 0,
               [LEAF_DESCENDANTS]: 0,
-            })
-            this.$set(normalized, 'children', isLoaded
+            }
+            normalized.children = isLoaded
               ? this.normalize(normalized, children, prevNodeMap)
-              : [])
+              : []
 
             if (isDefaultExpanded === true) normalized.ancestors.forEach(ancestor => {
               ancestor.isExpanded = true
@@ -1942,7 +1965,8 @@ export default {
     if (this.async && this.defaultOptions) this.handleRemoteSearch()
   },
 
-  destroyed() {
+  // Vue 3: unmounted instead of destroyed
+  unmounted() {
     // istanbul ignore next
     this.toggleClickOutsideEvent(false)
   },
