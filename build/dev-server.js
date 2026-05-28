@@ -21,13 +21,17 @@ const devMiddleware = require('webpack-dev-middleware')(compiler, {
 })
 
 const hotMiddleware = require('webpack-hot-middleware')(compiler, {
-  log: () => { /* empty */ },
+  log: false,
 })
-// force page reload when html-webpack-plugin template changes
-compiler.plugin('compilation', compilation => {
-  compilation.plugin('html-webpack-plugin-after-emit', () => {
-    hotMiddleware.publish({ action: 'reload' })
-  })
+
+// Handle webpack compilation events
+compiler.hooks.compilation.tap('HtmlWebpackPlugin', compilation => {
+  // Replace deprecated plugin API
+  if (compilation.hooks.htmlWebpackPluginAfterEmit) {
+    compilation.hooks.htmlWebpackPluginAfterEmit.tap('HtmlWebpackPlugin', () => {
+      hotMiddleware.publish({ action: 'reload' })
+    })
+  }
 })
 
 // handle fallback for HTML5 history API

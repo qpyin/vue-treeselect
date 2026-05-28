@@ -1,8 +1,9 @@
 import Vue from 'vue'
 import { mount } from '@vue/test-utils'
 import sleep from 'yaku/lib/sleep'
-import Treeselect from '@src/components/Treeselect'
+// eslint-disable-next-line import/no-unresolved
 import Option from '@src/components/Option'
+import Treeselect from '@src/components/Treeselect'
 
 describe('Basic', () => {
   describe('nodeMap', () => {

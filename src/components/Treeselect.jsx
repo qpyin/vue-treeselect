@@ -1,0 +1,43 @@
+import { defineComponent, h } from 'vue'
+import treeselectMixin from '../mixins/treeselectMixin'
+import HiddenFields from './HiddenFields'
+import Control from './Control'
+import Menu from './Menu'
+import MenuPortal from './MenuPortal'
+
+export default defineComponent({
+  name: 'vue-treeselect',
+  mixins: [ treeselectMixin ],
+
+  computed: {
+    wrapperClass() {
+      return {
+        'vue-treeselect': true,
+        'vue-treeselect--single': this.single,
+        'vue-treeselect--multi': this.multiple,
+        'vue-treeselect--searchable': this.searchable,
+        'vue-treeselect--disabled': this.disabled,
+        'vue-treeselect--focused': this.trigger.isFocused,
+        'vue-treeselect--has-value': this.hasValue,
+        'vue-treeselect--open': this.menu.isOpen,
+        'vue-treeselect--open-above': this.menu.placement === 'top',
+        'vue-treeselect--open-below': this.menu.placement === 'bottom',
+        'vue-treeselect--branch-nodes-disabled': this.disableBranchNodes,
+        'vue-treeselect--append-to-body': this.appendToBody,
+      }
+    },
+  },
+
+  render() {
+    return h('div', {
+      ref: 'wrapper',
+      class: this.wrapperClass,
+    }, [
+      h(HiddenFields),
+      h(Control, { ref: 'control' }),
+      this.appendToBody
+        ? h(MenuPortal, { ref: 'portal' })
+        : h(Menu, { ref: 'menu' }),
+    ])
+  },
+})

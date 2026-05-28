@@ -1,12 +1,12 @@
 const webpack = require('webpack')
-const merge = require('webpack-merge')
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
 const config = require('../../config')
 const utils = require('../utils')
 const banner = require('../banner')
 const baseWebpackConfig = require('../base')
 
-const baseLibraryWebpackConfig = merge(baseWebpackConfig, {
+const baseLibraryWebpackConfig = {
+  ...baseWebpackConfig,
   entry: {
     VueTreeselect: utils.resolve('src/index.js'),
   },
@@ -18,9 +18,10 @@ const baseLibraryWebpackConfig = merge(baseWebpackConfig, {
   },
 
   plugins: [
+    ...(baseWebpackConfig.plugins || []),
     new webpack.BannerPlugin(banner),
   ],
-})
+}
 
 if (config.library.bundleAnalyzerReport) {
   baseLibraryWebpackConfig.plugins.push(new BundleAnalyzerPlugin())

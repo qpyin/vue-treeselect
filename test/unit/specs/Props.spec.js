@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import { mount } from '@vue/test-utils'
 import sleep from 'yaku/lib/sleep'
+// eslint-disable-next-line import/no-unresolved
+import Option from '@src/components/Option'
 import {
   $,
   generateOptions,
@@ -13,7 +15,6 @@ import {
   findLabelContainerByNodeId,
 } from './shared'
 import Treeselect from '@src/components/Treeselect'
-import Option from '@src/components/Option'
 import MultiValueItem from '@src/components/MultiValueItem'
 import {
   UNCHECKED, CHECKED, INDETERMINATE,

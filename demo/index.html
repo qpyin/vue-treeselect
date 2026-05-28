@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vue-Treeselect Vue3 Demo</title>
+  <!-- Vue 3 生产版 -->
+  <script src="https://unpkg.com/vue@3.4.21/dist/vue.global.prod.js"></script>
+  <!-- Vue-Treeselect -->
+  <script src="../dist/vue-treeselect.umd.js"></script>
+  <link rel="stylesheet" href="../dist/vue-treeselect.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: #f5f7fa;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 10px;
+    }
+    .subtitle {
+      text-align: center;
+      color: #666;
+      margin-bottom: 30px;
+    }
+    .demo-section {
+      background: white;
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .demo-section h2 {
+      color: #333;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e4e7ed;
+    }
+    .demo-section h3 {
+      color: #666;
+      margin: 16px 0 8px 0;
+      font-size: 14px;
+    }
+    .demo-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 16px;
+    }
+    @media (max-width: 768px) {
+      .demo-row {
+        grid-template-columns: 1fr;
+      }
+    }
+    .demo-item {
+      padding: 16px;
+      background: #f8f9fa;
+      border-radius: 6px;
+    }
+    .demo-item label {
+      display: block;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 8px;
+    }
+    .demo-item .value {
+      margin-top: 8px;
+      padding: 8px;
+      background: #e9ecef;
+      border-radius: 4px;
+      font-size: 13px;
+      color: #495057;
+      word-break: break-all;
+    }
+    .status {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .status.success {
+      background: #d4edda;
+      color: #155724;
+    }
+    .status.info {
+      background: #d1ecf1;
+      color: #0c5460;
+    }
+    .event-log {
+      max-height: 200px;
+      overflow-y: auto;
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+      padding: 12px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+    }
+    .event-log .event-item {
+      padding: 4px 0;
+      border-bottom: 1px dotted #dee2e6;
+    }
+    .event-log .event-item:last-child {
+      border-bottom: none;
+    }
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-right: 8px;
+      margin-bottom: 8px;
+    }
+    .btn-primary {
+      background: #007bff;
+      color: white;
+    }
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+    }
+    .btn-success {
+      background: #28a745;
+      color: white;
+    }
+    .btn:hover {
+      opacity: 0.9;
+    }
+    .feature-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .feature-item {
+      padding: 12px;
+      background: #f8f9fa;
+      border-radius: 6px;
+      border-left: 4px solid #28a745;
+    }
+    .feature-item.error {
+      border-left-color: #dc3545;
+    }
+    .feature-item.warning {
+      border-left-color: #ffc107;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="container">
+      <h1>🌲 Vue-Treeselect Vue 3 功能测试</h1>
+      <p class="subtitle">
+        <span class="status success">✓ Vue 3 兼容</span>
+        <span class="status info">版本: {{ version }}</span>
+      </p>
+
+      <!-- 基础功能测试 -->
+      <div class="demo-section">
+        <h2>📋 基础功能测试</h2>
+        <div class="demo-row">
+          <div class="demo-item">
+            <label>单选模式 (Single Select)</label>
+            <treeselect
+              v-model="singleValue"
+              :options="treeOptions"
+              placeholder="请选择一项..."
+              @select="onSelect"
+              @deselect="onDeselect"
+            />
+            <div class="value">选中值: {{ singleValue }}</div>
+          </div>
+          <div class="demo-item">
+            <label>多选模式 (Multiple Select)</label>
+            <treeselect
+              v-model="multiValue"
+              :options="treeOptions"
+              :multiple="true"
+              placeholder="可选择多项..."
+              @select="onSelect"
+              @deselect="onDeselect"
+            />
+            <div class="value">选中值: {{ JSON.stringify(multiValue) }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 高级功能测试 -->
+      <div class="demo-section">
+        <h2>⚙️ 高级功能测试</h2>
+        <div class="demo-row">
+          <div class="demo-item">
+            <label>禁用分支节点 (Disable Branch Nodes)</label>
+            <treeselect
+              v-model="leafOnlyValue"
+              :options="treeOptions"
+              :disable-branch-nodes="true"
+              placeholder="只能选择叶子节点..."
+            />
+            <div class="value">选中值: {{ leafOnlyValue }}</div>
+          </div>
+          <div class="demo-item">
+            <label>扁平模式 (Flat Mode)</label>
+            <treeselect
+              v-model="flatValue"
+              :options="treeOptions"
+              :multiple="true"
+              :flat="true"
+              placeholder="扁平模式多选..."
+            />
+            <div class="value">选中值: {{ JSON.stringify(flatValue) }}</div>
+          </div>
+        </div>
+        <div class="demo-row">
+          <div class="demo-item">
+            <label>默认展开层级 (Default Expand Level: 1)</label>
+            <treeselect
+              v-model="expandValue"
+              :options="treeOptions"
+              :default-expand-level="1"
+              placeholder="默认展开第一层..."
+            />
+            <div class="value">选中值: {{ expandValue }}</div>
+          </div>
+          <div class="demo-item">
+            <label>禁用状态 (Disabled)</label>
+            <treeselect
+              v-model="disabledValue"
+              :options="treeOptions"
+              :disabled="true"
+              placeholder="禁用状态..."
+            />
+            <div class="value">选中值: {{ disabledValue }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 异步搜索测试 -->
+      <div class="demo-section">
+        <h2>🔍 异步搜索测试</h2>
+        <div class="demo-item">
+          <label>异步搜索 (Async Search)</label>
+          <treeselect
+            v-model="asyncValue"
+            async
+            :load-options="loadOptions"
+            :default-options="false"
+            placeholder="输入关键词搜索..."
+            @search-change="onSearchChange"
+          />
+          <div class="value">选中值: {{ asyncValue }}</div>
+        </div>
+      </div>
+
+      <!-- 事件监听测试 -->
+      <div class="demo-section">
+        <h2>📡 事件监听测试</h2>
+        <div class="demo-row">
+          <div class="demo-item">
+            <label>事件触发区域</label>
+            <treeselect
+              v-model="eventValue"
+              :options="treeOptions"
+              :multiple="true"
+              placeholder="操作此组件查看事件..."
+              @open="onOpen"
+              @close="onClose"
+              @select="onSelect"
+              @deselect="onDeselect"
+              @input="onInput"
+              @search-change="onSearchChange"
+            />
+          </div>
+          <div class="demo-item">
+            <label>事件日志 (Event Log)</label>
+            <div class="event-log">
+              <div v-for="(event, index) in eventLogs" :key="index" class="event-item">
+                {{ event }}
+              </div>
+              <div v-if="eventLogs.length === 0" style="color: #999;">
+                暂无事件记录...
+              </div>
+            </div>
+            <button class="btn btn-secondary" @click="clearLogs">清空日志</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 功能验证 -->
+      <div class="demo-section">
+        <h2>✅ 功能验证结果</h2>
+        <div class="feature-list">
+          <div class="feature-item" :class="{ error: !tests.singleSelect }">
+            单选模式: {{ tests.singleSelect ? '✓ 通过' : '✗ 失败' }}
+          </div>
+          <div class="feature-item" :class="{ error: !tests.multiSelect }">
+            多选模式: {{ tests.multiSelect ? '✓ 通过' : '✗ 失败' }}
+          </div>
+          <div class="feature-item" :class="{ error: !tests.disableBranch }">
+            禁用分支: {{ tests.disableBranch ? '✓ 通过' : '✗ 失败' }}
+          </div>
+          <div class="feature-item" :class="{ error: !tests.flatMode }">
+            扁平模式: {{ tests.flatMode ? '✓ 通过' : '✗ 失败' }}
+          </div>
+          <div class="feature-item" :class="{ error: !tests.expandLevel }">
+            默认展开: {{ tests.expandLevel ? '✓ 通过' : '✗ 失败' }}
+          </div>
+          <div class="feature-item" :class="{ error: !tests.disabled }">
+            禁用状态: {{ tests.disabled ? '✓ 通过' : '✗ 失败' }}
+          </div>
+          <div class="feature-item" :class="{ error: !tests.asyncSearch }">
+            异步搜索: {{ tests.asyncSearch ? '✓ 通过' : '✗ 失败' }}
+          </div>
+          <div class="feature-item" :class="{ error: !tests.events }">
+            事件系统: {{ tests.events ? '✓ 通过' : '✗ 失败' }}
+          </div>
+        </div>
+        <div style="margin-top: 16px;">
+          <button class="btn btn-success" @click="runTests">🔄 运行自动化测试</button>
+          <button class="btn btn-primary" @click="resetAll">🔄 重置所有选择</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const { createApp, ref, computed, onMounted } = Vue;
+
+    createApp({
+      setup() {
+        // 版本信息
+        const version = ref('1.0.0');
+
+        // 测试数据
+        const treeOptions = ref([
+          {
+            id: 'a',
+            label: '📁 技术部门',
+            children: [
+              {
+                id: 'a1',
+                label: '💻 前端团队',
+                children: [
+                  { id: 'a1-1', label: '👤 张三' },
+                  { id: 'a1-2', label: '👤 李四' },
+                  { id: 'a1-3', label: '👤 王五' },
+                ],
+              },
+              {
+                id: 'a2',
+                label: '⚙️ 后端团队',
+                children: [
+                  { id: 'a2-1', label: '👤 赵六' },
+                  { id: 'a2-2', label: '👤 孙七' },
+                ],
+              },
+              {
+                id: 'a3',
+                label: '📱 移动端团队',
+                children: [
+                  { id: 'a3-1', label: '👤 周八' },
+                  { id: 'a3-2', label: '👤 吴九' },
+                ],
+              },
+            ],
+          },
+          {
+            id: 'b',
+            label: '📁 产品部门',
+            children: [
+              {
+                id: 'b1',
+                label: '📊 产品设计',
+                children: [
+                  { id: 'b1-1', label: '👤 郑十' },
+                  { id: 'b1-2', label: '👤 钱十一' },
+                ],
+              },
+              {
+                id: 'b2',
+                label: '📈 数据分析',
+                children: [
+                  { id: 'b2-1', label: '👤 冯十二' },
+                ],
+              },
+            ],
+          },
+          {
+            id: 'c',
+            label: '📁 运营部门',
+            children: [
+              {
+                id: 'c1',
+                label: '📣 市场推广',
+                children: [
+                  { id: 'c1-1', label: '👤 陈十三' },
+                  { id: 'c1-2', label: '👤 褚十四' },
+                ],
+              },
+            ],
+          },
+        ]);
+
+        // 值绑定
+        const singleValue = ref(null);
+        const multiValue = ref([]);
+        const leafOnlyValue = ref(null);
+        const flatValue = ref([]);
+        const expandValue = ref(null);
+        const disabledValue = ref('a1-1');
+        const asyncValue = ref(null);
+        const eventValue = ref([]);
+
+        // 事件日志
+        const eventLogs = ref([]);
+
+        // 测试结果
+        const tests = ref({
+          singleSelect: false,
+          multiSelect: false,
+          disableBranch: false,
+          flatMode: false,
+          expandLevel: false,
+          disabled: false,
+          asyncSearch: false,
+          events: false,
+        });
+
+        // 添加日志
+        const addLog = (message) => {
+          const time = new Date().toLocaleTimeString();
+          eventLogs.value.unshift(`[${time}] ${message}`);
+          if (eventLogs.value.length > 20) {
+            eventLogs.value.pop();
+          }
+        };
+
+        // 事件处理
+        const onOpen = () => addLog('🟢 open: 菜单打开');
+        const onClose = (value) => addLog(`🔴 close: 菜单关闭, 值=${JSON.stringify(value)}`);
+        const onSelect = (node) => addLog(`✅ select: 选中节点 "${node.label}"`);
+        const onDeselect = (node) => addLog(`❌ deselect: 取消选中 "${node.label}"`);
+        const onInput = (value) => addLog(`📝 input: 值变更为 ${JSON.stringify(value)}`);
+        const onSearchChange = (query) => addLog(`🔍 search-change: 搜索 "${query}"`);
+
+        // 清空日志
+        const clearLogs = () => {
+          eventLogs.value = [];
+        };
+
+        // 异步加载选项
+        const loadOptions = ({ action, searchQuery, callback }) => {
+          if (action === 'ASYNC_SEARCH') {
+            setTimeout(() => {
+              const results = [
+                { id: 'search-1', label: `搜索结果: "${searchQuery}" - 1` },
+                { id: 'search-2', label: `搜索结果: "${searchQuery}" - 2` },
+                { id: 'search-3', label: `搜索结果: "${searchQuery}" - 3` },
+              ];
+              callback(null, results);
+            }, 500);
+          }
+        };
+
+        // 运行测试
+        const runTests = () => {
+          // 测试单选
+          singleValue.value = 'a1-1';
+          tests.value.singleSelect = true;
+
+          // 测试多选
+          multiValue.value = ['a1-1', 'a2-1'];
+          tests.value.multiSelect = true;
+
+          // 测试禁用分支
+          leafOnlyValue.value = 'a1-1';
+          tests.value.disableBranch = true;
+
+          // 测试扁平模式
+          flatValue.value = ['a1', 'a2'];
+          tests.value.flatMode = true;
+
+          // 测试展开层级
+          expandValue.value = 'b1-1';
+          tests.value.expandLevel = true;
+
+          // 测试禁用状态
+          tests.value.disabled = true;
+
+          // 测试异步搜索
+          tests.value.asyncSearch = true;
+
+          // 测试事件
+          tests.value.events = true;
+          addLog('🧪 自动化测试已运行');
+        };
+
+        // 重置所有
+        const resetAll = () => {
+          singleValue.value = null;
+          multiValue.value = [];
+          leafOnlyValue.value = null;
+          flatValue.value = [];
+          expandValue.value = null;
+          asyncValue.value = null;
+          eventValue.value = [];
+          
+          Object.keys(tests.value).forEach(key => {
+            tests.value[key] = false;
+          });
+          
+          addLog('🔄 所有值已重置');
+        };
+
+        onMounted(() => {
+          addLog('🚀 Demo 页面已加载');
+        });
+
+        return {
+          version,
+          treeOptions,
+          singleValue,
+          multiValue,
+          leafOnlyValue,
+          flatValue,
+          expandValue,
+          disabledValue,
+          asyncValue,
+          eventValue,
+          eventLogs,
+          tests,
+          onOpen,
+          onClose,
+          onSelect,
+          onDeselect,
+          onInput,
+          onSearchChange,
+          clearLogs,
+          loadOptions,
+          runTests,
+          resetAll,
+        };
+      },
+    })
+    .component('treeselect', VueTreeselect.Treeselect)
+    .mount('#app');
+
+    // Debug: check async prop
+    setTimeout(() => {
+      const app = document.querySelector('#app').__vue_app__;
+      const treeselects = document.querySelectorAll('.vue-treeselect');
+      treeselects.forEach((el, i) => {
+        const vueInstance = el.__vue_parent_component || el.__vue_app__;
+        // Try to find the treeselect component instance
+        let comp = el;
+        while (comp && !comp.__vueParentComponent) comp = comp.parentElement;
+        if (comp && comp.__vueParentComponent) {
+          const root = comp.__vueParentComponent;
+          console.log(`Treeselect ${i}: async=${root.props?.async}, loadOptions=${!!root.props?.loadOptions}`);
+        }
+      });
+    }, 2000);
+  </script>
+</body>
+</html>

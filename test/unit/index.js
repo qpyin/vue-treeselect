@@ -1,7 +1,8 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
 
-Vue.config.productionTip = false
-Vue.config.devtools = false
+const app = createApp({})
+app.config.productionTip = false
+app.config.devtools = false
 
 function importAll(r) {
   r.keys().forEach(r)
